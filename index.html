@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Prediction by nizamo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Prediction</h1>
+      <h2 class="project-tagline">prediction assignment</h2>
+      <a href="https://github.com/nizamo/prediction" class="btn">View on GitHub</a>
+      <a href="https://github.com/nizamo/prediction/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/nizamo/prediction/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <hr>
+
+<p>title: "Machine Learning Project"
+author: "Nizamo"
+date: "Sunday, January 31, 2016"</p>
+
+<h2>
+<a id="output-html_document" class="anchor" href="#output-html_document" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>output: html_document</h2>
+
+<h1>
+<a id="prediction-assignment-writeup---practical-machine-learning" class="anchor" href="#prediction-assignment-writeup---practical-machine-learning" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Prediction Assignment Writeup - Practical Machine Learning</h1>
+
+<h1>
+<a id="background" class="anchor" href="#background" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Background</h1>
+
+<p>Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: <a href="http://groupware.les.inf.puc-rio.br/har">http://groupware.les.inf.puc-rio.br/har</a> (see the section on the Weight Lifting Exercise Dataset).</p>
+
+<h1>
+<a id="data" class="anchor" href="#data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data</h1>
+
+<p>The training data for this project are available here:
+<a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv</a>
+The test data are available here:
+<a href="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv">https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv</a>
+The data for this project is come from this source: <a href="http://groupware.les.inf.puc-rio.br/har">http://groupware.les.inf.puc-rio.br/har</a>. This dataset is licensed under the Creative Commons license (CC BY-SA).Please visit the site for further explaination of this marvellous group.</p>
+
+<h1>
+<a id="objective" class="anchor" href="#objective" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Objective</h1>
+
+<p>The objective of this project is to predict the manner of performing unilateral dumbbell biceps curls based on data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. The 5 possible methods include -
+A: exactly according to the specification
+B: throwing the elbows to the front
+C: lifting the dumbbell only halfway
+D: lowering the dumbbell only halfway
+E: throwing the hips to the front</p>
+
+<h1>
+<a id="data-preparation" class="anchor" href="#data-preparation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data Preparation</h1>
+
+<p>Downloaded the data and save it in your working directory. Check the default directory and change it to your working directory.
+getwd()
+setwd("E:/coursera nizam/Course Project Module 8")</p>
+
+<div class="highlight highlight-source-r"><pre>library(<span class="pl-smi">Hmisc</span>)
+library(<span class="pl-smi">caret</span>)
+library(<span class="pl-smi">randomForest</span>)
+library(<span class="pl-smi">foreach</span>)
+library(<span class="pl-smi">doParallel</span>)
+set.seed(<span class="pl-c1">12345</span>)
+options(<span class="pl-v">warn</span><span class="pl-k">=</span><span class="pl-k">-</span><span class="pl-c1">1</span>)</pre></div>
+
+<p>Values contained "#DIV/0!" have been replaced by an NA value.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">training_data</span> <span class="pl-k">&lt;-</span> read.csv(<span class="pl-s"><span class="pl-pds">"</span>E:/coursera nizam/Course Project Module 8/pml-training.csv<span class="pl-pds">"</span></span>, <span class="pl-v">na.strings</span><span class="pl-k">=</span>c(<span class="pl-s"><span class="pl-pds">"</span>#DIV/0!<span class="pl-pds">"</span></span>) )
+<span class="pl-smi">testing_data</span> <span class="pl-k">&lt;-</span>  read.csv(<span class="pl-s"><span class="pl-pds">"</span>E:/coursera nizam/Course Project Module 8/pml-testing.csv<span class="pl-pds">"</span></span>, <span class="pl-v">na.strings</span><span class="pl-k">=</span>c(<span class="pl-s"><span class="pl-pds">"</span>#DIV/0!<span class="pl-pds">"</span></span>) )</pre></div>
+
+<p>All columns 8 to the end have been casted to numeric.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-k">for</span>(<span class="pl-smi">i</span> <span class="pl-k">in</span> c(<span class="pl-c1">8</span><span class="pl-k">:</span>ncol(<span class="pl-smi">training_data</span>)<span class="pl-k">-</span><span class="pl-c1">1</span>)) {<span class="pl-smi">training_data</span>[,<span class="pl-smi">i</span>] <span class="pl-k">=</span> as.numeric(as.character(<span class="pl-smi">training_data</span>[,<span class="pl-smi">i</span>]))}
+<span class="pl-k">for</span>(<span class="pl-smi">i</span> <span class="pl-k">in</span> c(<span class="pl-c1">8</span><span class="pl-k">:</span>ncol(<span class="pl-smi">testing_data</span>)<span class="pl-k">-</span><span class="pl-c1">1</span>)) {<span class="pl-smi">testing_data</span>[,<span class="pl-smi">i</span>] <span class="pl-k">=</span> as.numeric(as.character(<span class="pl-smi">testing_data</span>[,<span class="pl-smi">i</span>]))}</pre></div>
+
+<p>A good prediction cannot be achieved as some of the columns mostly blank.  Feature sets that include complete column only will be chosen. Username, timestamps and windows also have been removed. Determination of feature sets have been done and displayed.  </p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">feature_set</span> <span class="pl-k">&lt;-</span> colnames(<span class="pl-smi">training_data</span>[colSums(is.na(<span class="pl-smi">training_data</span>)) <span class="pl-k">==</span> <span class="pl-c1">0</span>])[<span class="pl-k">-</span>(<span class="pl-c1">1</span><span class="pl-k">:</span><span class="pl-c1">7</span>)]
+<span class="pl-smi">model_data</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">training_data</span>[<span class="pl-smi">feature_set</span>]
+<span class="pl-smi">feature_set</span></pre></div>
+
+<h1>
+<a id="data-model" class="anchor" href="#data-model" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data Model</h1>
+
+<p>Model data built from selected feature set have been obtained.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">index</span> <span class="pl-k">&lt;-</span> createDataPartition(<span class="pl-v">y</span><span class="pl-k">=</span><span class="pl-smi">model_data</span><span class="pl-k">$</span><span class="pl-smi">classe</span>, <span class="pl-v">p</span><span class="pl-k">=</span><span class="pl-c1">0.75</span>, <span class="pl-v">list</span><span class="pl-k">=</span><span class="pl-c1">FALSE</span> )
+<span class="pl-smi">training</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">model_data</span>[<span class="pl-smi">index</span>,]
+<span class="pl-smi">testing</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">model_data</span>[<span class="pl-k">-</span><span class="pl-smi">index</span>,]</pre></div>
+
+<p>Five random forests with 150 trees each have been developed and parallel processing have been used for building this model. </p>
+
+<div class="highlight highlight-source-r"><pre>registerDoParallel()
+<span class="pl-smi">x</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">training</span>[<span class="pl-k">-</span>ncol(<span class="pl-smi">training</span>)]
+<span class="pl-smi">y</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">training</span><span class="pl-k">$</span><span class="pl-smi">classe</span>
+<span class="pl-smi">rf</span> <span class="pl-k">&lt;-</span> foreach(<span class="pl-v">ntree</span><span class="pl-k">=</span>rep(<span class="pl-c1">150</span>, <span class="pl-c1">6</span>), <span class="pl-v">.combine</span><span class="pl-k">=</span><span class="pl-e">randomForest</span><span class="pl-k">::</span><span class="pl-smi">combine</span>, <span class="pl-v">.packages</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">'</span>randomForest<span class="pl-pds">'</span></span>) %<span class="pl-smi">dopar</span>% {
+randomForest(<span class="pl-smi">x</span>, <span class="pl-smi">y</span>, <span class="pl-v">ntree</span><span class="pl-k">=</span><span class="pl-smi">ntree</span>) 
+}</pre></div>
+
+<p>Error reports for both training and test data have been generated.</p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-smi">predictions1</span> <span class="pl-k">&lt;-</span> predict(<span class="pl-smi">rf</span>, <span class="pl-v">newdata</span><span class="pl-k">=</span><span class="pl-smi">training</span>)
+confusionMatrix(<span class="pl-smi">predictions1</span>,<span class="pl-smi">training</span><span class="pl-k">$</span><span class="pl-smi">classe</span>)
+<span class="pl-smi">predictions2</span> <span class="pl-k">&lt;-</span> predict(<span class="pl-smi">rf</span>, <span class="pl-v">newdata</span><span class="pl-k">=</span><span class="pl-smi">testing</span>)
+confusionMatrix(<span class="pl-smi">predictions2</span>,<span class="pl-smi">testing</span><span class="pl-k">$</span><span class="pl-smi">classe</span>)</pre></div>
+
+<h1>
+<a id="conclusions-and-test-data-submit" class="anchor" href="#conclusions-and-test-data-submit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Conclusions and Test Data Submit</h1>
+
+<p>The confusion matrix obtained from this model is shown.The test data was around 99% accurate and it is expected nearly all of the submitted test cases to be correct.  </p>
+
+<div class="highlight highlight-source-r"><pre><span class="pl-v">pml_write_files</span> <span class="pl-k">=</span> <span class="pl-k">function</span>(<span class="pl-smi">x</span>){
+  <span class="pl-v">n</span> <span class="pl-k">=</span> length(<span class="pl-smi">x</span>)
+  <span class="pl-k">for</span>(<span class="pl-smi">i</span> <span class="pl-k">in</span> <span class="pl-c1">1</span><span class="pl-k">:</span><span class="pl-smi">n</span>){
+    <span class="pl-v">filename</span> <span class="pl-k">=</span> paste0(<span class="pl-s"><span class="pl-pds">"</span>problem_id_<span class="pl-pds">"</span></span>,<span class="pl-smi">i</span>,<span class="pl-s"><span class="pl-pds">"</span>.txt<span class="pl-pds">"</span></span>)
+    write.table(<span class="pl-smi">x</span>[<span class="pl-smi">i</span>],<span class="pl-v">file</span><span class="pl-k">=</span><span class="pl-smi">filename</span>,<span class="pl-v">quote</span><span class="pl-k">=</span><span class="pl-c1">FALSE</span>,<span class="pl-v">row.names</span><span class="pl-k">=</span><span class="pl-c1">FALSE</span>,<span class="pl-v">col.names</span><span class="pl-k">=</span><span class="pl-c1">FALSE</span>)
+  }
+}
+
+<span class="pl-smi">x</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">testing_data</span>
+<span class="pl-smi">x</span> <span class="pl-k">&lt;-</span> <span class="pl-smi">x</span>[<span class="pl-smi">feature_set</span>[<span class="pl-smi">feature_set</span><span class="pl-k">!=</span><span class="pl-s"><span class="pl-pds">'</span>classe<span class="pl-pds">'</span></span>]]
+<span class="pl-smi">answers</span> <span class="pl-k">&lt;-</span> predict(<span class="pl-smi">rf</span>, <span class="pl-v">newdata</span><span class="pl-k">=</span><span class="pl-smi">x</span>)
+<span class="pl-smi">answers</span>
+pml_write_files(<span class="pl-smi">answers</span>)</pre></div>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/nizamo/prediction">Prediction</a> is maintained by <a href="https://github.com/nizamo">nizamo</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
