@@ -2,7 +2,7 @@
 title: "Machine Learning Project"
 author: "Nizamo"
 date: "Sunday, January 31, 2016"
-output: word_document
+output: html_document
 ---
 Prediction Assignment Writeup - Practical Machine Learning
 ==========================================================
@@ -25,7 +25,8 @@ D: lowering the dumbbell only halfway
 E: throwing the hips to the front
 
 ##############################################################################
-1. Downloaded the data and save it in your working directory. Check the default directory and change it to your working directory.
+# Data Preparation
+Downloaded the data and save it in your working directory. Check the default directory and change it to your working directory.
 getwd()
 setwd("E:/coursera nizam/Course Project Module 8")
 ```{r}
@@ -53,6 +54,7 @@ feature_set <- colnames(training_data[colSums(is.na(training_data)) == 0])[-(1:7
 model_data <- training_data[feature_set]
 feature_set
 ```
+# Data Model
 Model data built from selected feature set have been obtained.
 ```{r}
 index <- createDataPartition(y=model_data$classe, p=0.75, list=FALSE )
@@ -76,11 +78,9 @@ predictions2 <- predict(rf, newdata=testing)
 confusionMatrix(predictions2,testing$classe)
 ```
 
-Conclusions and Test Data Submit
---------------------------------
+#Conclusions and Test Data Submit
 
-Confusion matrix obtained from this model is very accurate. Because test data was around 99% accurate, it is expected nearly all of the submitted test cases to be correct.  It turned out they were all correct.
-
+The confusion matrix obtained from this model is shown.The test data was around 99% accurate and it is expected nearly all of the submitted test cases to be correct.  
 
 ```{r}
 pml_write_files = function(x){
@@ -95,5 +95,5 @@ x <- testing_data
 x <- x[feature_set[feature_set!='classe']]
 answers <- predict(rf, newdata=x)
 answers
-
+pml_write_files(answers)
 ```
